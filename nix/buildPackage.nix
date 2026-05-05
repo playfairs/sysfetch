@@ -6,7 +6,7 @@ pkgs.rustPlatform.buildRustPackage {
   
   src = ./.;
   
-  cargoLock.lockFile = ./Cargo.lock;
+  cargoLock.lockFile = ../Cargo.lock;
   
   nativeBuildInputs = with pkgs; [
     pkg-config
