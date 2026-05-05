@@ -4,7 +4,7 @@ pkgs.rustPlatform.buildRustPackage {
   pname = "sysfetch";
   version = "0.1.0";
   
-  src = ./.;
+  src = ../.;
   
   cargoLock.lockFile = ../Cargo.lock;
   
