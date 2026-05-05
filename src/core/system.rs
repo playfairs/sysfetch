@@ -9,6 +9,7 @@ pub struct SystemInfo {
     pub gpu: String,
     pub os: OSInfo,
     pub kernel: String,
+    pub package_manager_version: String,
     pub uptime: String,
     pub datetime: String,
     pub shell: String,
@@ -46,6 +47,7 @@ pub struct PackageInfo {
     pub nix_system: String,
     pub nix_user: String,
     pub total: String,
+    pub breakdown: String,
 }
 
 pub struct SystemCollector;
@@ -71,6 +73,7 @@ impl SystemCollector {
                 arch: os::get_os_arch(),
             },
             kernel: kernel::get_kernel_version(),
+            package_manager_version: packages::get_package_manager_version(),
             uptime: uptime::get_uptime(),
             datetime: datetime::get_datetime(),
             shell: shell::get_shell_info(),
@@ -84,6 +87,7 @@ impl SystemCollector {
                 nix_system: packages::get_nix_system_packages(),
                 nix_user: packages::get_nix_user_packages(),
                 total: packages::get_total_packages(),
+                breakdown: packages::get_package_breakdown(),
             },
             compositor: compositor::get_compositor_info(),
             drivers: drivers::get_driver_info(),

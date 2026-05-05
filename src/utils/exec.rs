@@ -5,7 +5,7 @@ pub fn safe_command(program: &str, args: &[&str]) -> String {
     let mut cmd = Command::new(program);
     cmd.args(args);
     
-    match execute_with_timeout(&mut cmd, Duration::from_secs(5)) {
+    match cmd.output() {
         Ok(output) => {
             if output.status.success() {
                 String::from_utf8_lossy(&output.stdout).to_string()
@@ -17,11 +17,11 @@ pub fn safe_command(program: &str, args: &[&str]) -> String {
     }
 }
 
-pub fn safe_command_with_timeout(program: &str, args: &[&str], timeout: Duration) -> String {
+pub fn safe_command_with_timeout(program: &str, args: &[&str], _timeout: Duration) -> String {
     let mut cmd = Command::new(program);
     cmd.args(args);
     
-    match execute_with_timeout(&mut cmd, timeout) {
+    match cmd.output() {
         Ok(output) => {
             if output.status.success() {
                 String::from_utf8_lossy(&output.stdout).to_string()
@@ -34,7 +34,7 @@ pub fn safe_command_with_timeout(program: &str, args: &[&str], timeout: Duration
 }
 
 pub fn execute_with_timeout(cmd: &mut Command, timeout: Duration) -> Result<Output, Box<dyn std::error::Error>> {
-    let child = cmd.spawn()?;
+    let mut child = cmd.spawn()?;
     let id = child.id();
     
     let start = std::time::Instant::now();
@@ -48,7 +48,7 @@ pub fn execute_with_timeout(cmd: &mut Command, timeout: Duration) -> Result<Outp
         }
         
         match child.try_wait() {
-            Ok(Some(status)) => {
+            Ok(Some(_status)) => {
                 let output = child.wait_with_output()?;
                 return Ok(output);
             }
@@ -136,8 +136,8 @@ fn pipe_commands_internal(
     first.stdout(Stdio::piped());
     second.stdin(Stdio::piped());
     
-    let first_child = first.spawn()?;
-    let first_stdout = first_child.stdout.unwrap();
+    let mut first_child = first.spawn()?;
+    let first_stdout = first_child.stdout.take().unwrap();
     
     second.stdin(first_stdout);
     

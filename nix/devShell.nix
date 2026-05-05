@@ -22,6 +22,7 @@ pkgs.mkShell {
     darwin.apple_sdk.frameworks.CoreFoundation
     darwin.apple_sdk.frameworks.IOKit
     darwin.apple_sdk.frameworks.SystemConfiguration
+    libiconv
   ];
 
   RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustc.src}/lib/rustlib/src/rust/library";

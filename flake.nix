@@ -1,5 +1,5 @@
 {
-  description = "A fast, modular system information fetcher";
+  description = "A Minimal Fetching Utility.";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";

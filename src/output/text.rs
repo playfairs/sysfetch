@@ -17,17 +17,18 @@ impl StandardTextFormatter {
         }
         
         let color = self.theme.get_category_color(category);
+        let padding = 12 - label.len();
+        let spaces = " ".repeat(padding.max(0));
         format!(
-            "{}│{}{}{}{}{} {}{}{}\n",
+            "{}│{}{}{}{}{}{} : {}\n",
             self.theme.colors.cyan,
             self.theme.colors.reset,
             " ",
             color,
             label,
             self.theme.colors.reset,
-            "     : ",
-            value,
-            self.theme.colors.reset
+            spaces,
+            value
         )
     }
     
@@ -36,9 +37,19 @@ impl StandardTextFormatter {
     }
     
     fn get_current_host(&self) -> String {
-        env::var("HOSTNAME").unwrap_or_else(|_| {
-            env::var("COMPUTERNAME").unwrap_or_else(|_| "unknown".to_string())
-        })
+        if let Ok(hostname) = env::var("HOSTNAME") {
+            return hostname;
+        }
+        if let Ok(hostname) = env::var("COMPUTERNAME") {
+            return hostname;
+        }
+        
+        let output = crate::utils::exec::safe_command("hostname", &[]);
+        if !output.is_empty() {
+            return output.trim().to_string();
+        }
+        
+        "unknown".to_string()
     }
     
     fn get_current_pwd(&self) -> String {
@@ -69,6 +80,7 @@ impl OutputFormatter for StandardTextFormatter {
         output.push_str(&self.format_field("host", &self.get_current_host(), "system"));
         output.push_str(&self.format_field("os", &format!("{} ({})", info.os.name, info.os.arch), "system"));
         output.push_str(&self.format_field("kernel", &info.kernel, "system"));
+        output.push_str(&self.format_field("pkgmgr", &info.package_manager_version, "system"));
         output.push_str(&self.format_field("uptime", &info.uptime, "system"));
         
         output.push_str(&format!(
@@ -100,18 +112,14 @@ impl OutputFormatter for StandardTextFormatter {
         ));
         
         output.push_str(&self.format_field("network", &format!("{} ({})", info.network.local_ip, info.network.interface), "path"));
-        output.push_str(&self.format_field("packages", &info.packages.total, "path"));
+        output.push_str(&self.format_field("packages", &info.packages.breakdown, "path"));
         output.push_str(&self.format_field("compositor", &info.compositor, "path"));
         output.push_str(&self.format_field("drivers", &info.drivers, "path"));
         output.push_str(&self.format_field("media", &info.media, "path"));
         
         output.push_str(&format!(
-            "{}╰────────────────────────────────\n",
-            self.theme.colors.cyan
-        ));
-        
-        output.push_str(&format!(
-            " {} {}{}\n",
+            "{}╰──────────────────────────────── {}{}{}\n",
+            self.theme.colors.cyan,
             self.theme.colors.gray,
             info.datetime,
             self.theme.colors.reset

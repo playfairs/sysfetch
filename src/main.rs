@@ -1,6 +1,6 @@
 use clap::{Arg, Command};
 use sysfetch::core::{DisplayManager, SystemCollector, get_theme};
-use sysfetch::utils::cache::get_global_cache;
+use sysfetch::utils::cache::{get_global_cache, get_global_cache_with_file_cache};
 
 fn main() {
     let matches = Command::new("sysfetch")

@@ -23,6 +23,7 @@ pkgs.rustPlatform.buildRustPackage {
     darwin.apple_sdk.frameworks.CoreFoundation
     darwin.apple_sdk.frameworks.IOKit
     darwin.apple_sdk.frameworks.SystemConfiguration
+    libiconv
   ];
   
   meta = with pkgs.lib; {

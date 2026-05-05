@@ -103,7 +103,7 @@ impl MemoryCache {
             value
         } else {
             let value = provider();
-            self.set_with_ttl(key, value, ttl);
+            self.set_with_ttl(key, value.clone(), ttl);
             value
         }
     }
@@ -166,4 +166,10 @@ pub fn get_global_cache() -> &'static mut CacheManager {
         });
         GLOBAL_CACHE.as_mut().unwrap()
     }
+}
+
+pub fn get_global_cache_with_file_cache(_cache_dir: String) -> &'static mut CacheManager {
+    // for now, just return the same global cache.
+    // using proper impl, this would set up file-based caching
+    get_global_cache()
 }

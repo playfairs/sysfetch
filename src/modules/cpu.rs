@@ -1,5 +1,5 @@
 use crate::utils::exec;
-use sysinfo::{System, SystemExt, CpuExt};
+use sysinfo::{System, SystemExt};
 
 pub fn get_cpu_info() -> String {
     if cfg!(target_os = "macos") {
@@ -42,13 +42,21 @@ fn get_cpu_generic() -> String {
 
 #[cfg(target_os = "macos")]
 fn get_cpu_macos() -> String {
-    let mut system = System::new_all();
-    system.refresh_cpu();
-    if let Some(cpu) = system.cpus().first() {
-        return format!("{} @ {:.2} GHz", cpu.brand(), cpu.frequency() as f64 / 1000.0);
-    }
     let output = exec::safe_command("sysctl", &["-n", "machdep.cpu.brand_string"]);
-    output.trim().to_string()
+    if !output.is_empty() {
+        return output.trim().to_string();
+    }
+    
+    let output = exec::safe_command("system_profiler", &["SPHardwareDataType", "-json"]);
+    for line in output.lines() {
+        if line.contains("ProcessorName") || line.contains("Processor Speed") {
+            if let Some(cpu_info) = line.split(':').nth(1) {
+                return cpu_info.trim().trim_matches('"').trim_matches(',').to_string();
+            }
+        }
+    }
+    
+    "Unknown".to_string()
 }
 
 #[cfg(target_os = "linux")]
